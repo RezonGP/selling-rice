@@ -40,7 +40,7 @@ export class OrderService {
         throw new Error(`Product not found or inactive: ${itemInput.productId}`);
       }
 
-      const packaging = product.packagingOptions.find((p) => p.sizeKg === itemInput.sizeKg);
+      const packaging = product.packagingOptions.find((p: any) => p.sizeKg === itemInput.sizeKg);
       if (!packaging || !packaging.isAvailable) {
         throw new Error(`Packaging size ${itemInput.sizeKg}kg not available for product ${product.name}`);
       }

@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # Database - Lightweight MySQL / MariaDB (Port 3306)
+  # Database - Lightweight MySQL / MariaDB (Port 3306 - 80MB)
   mysql:
     image: mariadb:10.11
     container_name: rice_mysql
@@ -23,28 +23,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # Database - MongoDB (Port 27017)
-  mongodb:
-    image: mongo:6.0
-    container_name: rice_mongodb
-    restart: always
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER:-admin}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-RicePass2026!}
-      MONGO_INITDB_DATABASE: rice_ecommerce
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
-    networks:
-      - rice_network
-    healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  # Caching & Rate Limiting & Queue - Redis (Port 6379)
+  # Caching & Rate Limiting & Queue - Redis (Port 6379 - 15MB)
   redis:
     image: redis:7-alpine
     container_name: rice_redis
@@ -73,7 +52,6 @@ services:
       NODE_ENV: production
       PORT: 5000
       INSTANCE_ID: backend-1
-      MONGO_URI: mongodb://${MONGO_ROOT_USER:-admin}:${MONGO_ROOT_PASSWORD:-RicePass2026!}@mongodb:27017/rice_ecommerce?authSource=admin
       MYSQL_HOST: mysql
       MYSQL_PORT: 3306
       MYSQL_USER: root
@@ -86,8 +64,6 @@ services:
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-SuperSecretRiceJWTRefreshKey2026!}
       CORS_ORIGIN: http://localhost:80,http://localhost:3000,http://localhost,http://gao.noryx.app
     depends_on:
-      mongodb:
-        condition: service_healthy
       mysql:
         condition: service_healthy
       redis:
@@ -106,7 +82,6 @@ services:
       NODE_ENV: production
       PORT: 5000
       INSTANCE_ID: backend-2
-      MONGO_URI: mongodb://${MONGO_ROOT_USER:-admin}:${MONGO_ROOT_PASSWORD:-RicePass2026!}@mongodb:27017/rice_ecommerce?authSource=admin
       MYSQL_HOST: mysql
       MYSQL_PORT: 3306
       MYSQL_USER: root
@@ -119,8 +94,6 @@ services:
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-SuperSecretRiceJWTRefreshKey2026!}
       CORS_ORIGIN: http://localhost:80,http://localhost:3000,http://localhost,http://gao.noryx.app
     depends_on:
-      mongodb:
-        condition: service_healthy
       mysql:
         condition: service_healthy
       redis:
@@ -157,7 +130,6 @@ services:
 
 volumes:
   mysql_data:
-  mongo_data:
   redis_data:
 
 networks:
