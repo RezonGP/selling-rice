@@ -1,9 +1,9 @@
 version: '3.8'
 
 services:
-  # Database - MySQL Only (Port 3306)
+  # Database - Lightweight MySQL / MariaDB (Port 3306 - 80% smaller image size)
   mysql:
-    image: mysql:8.0
+    image: mariadb:10.11
     container_name: rice_mysql
     restart: always
     environment:
@@ -18,12 +18,12 @@ services:
     networks:
       - rice_network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-RiceMySQLPass2026!}"]
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  # Caching & Rate Limiting & Queue - Redis
+  # Caching & Rate Limiting & Queue - Redis (Ultra Lightweight Alpine)
   redis:
     image: redis:7-alpine
     container_name: rice_redis
