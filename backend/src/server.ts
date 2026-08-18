@@ -10,27 +10,29 @@ import { startOrderWorker } from './jobs/workers/orderWorker';
 
 const startServer = async () => {
   try {
-    // 1. Connect MongoDB
-    await connectDB();
+    // 1. Connect MongoDB (Optional)
+    const mongoConn = await connectDB();
 
     // 2. Initialize MySQL Tables (products, orders)
     await initMySQLTables();
 
-    // 3. Seed Initial Admin Account if not exists
-    const userRepo = new UserRepository();
-    const authService = new AuthService();
-    const adminUser = await userRepo.findByEmail(env.INITIAL_ADMIN_EMAIL);
-    if (!adminUser) {
-      const passwordHash = await authService.hashPassword(env.INITIAL_ADMIN_PASSWORD);
-      await userRepo.create({
-        fullName: 'Lead Admin Nông Sản Việt',
-        email: env.INITIAL_ADMIN_EMAIL,
-        phone: '0901234567',
-        passwordHash,
-        role: UserRole.ADMIN,
-        isB2BVerified: true,
-      });
-      logger.info(`Seeded initial Admin user: ${env.INITIAL_ADMIN_EMAIL}`);
+    // 3. Seed Initial Admin Account if MongoDB is enabled
+    if (mongoConn) {
+      const userRepo = new UserRepository();
+      const authService = new AuthService();
+      const adminUser = await userRepo.findByEmail(env.INITIAL_ADMIN_EMAIL);
+      if (!adminUser) {
+        const passwordHash = await authService.hashPassword(env.INITIAL_ADMIN_PASSWORD);
+        await userRepo.create({
+          fullName: 'Lead Admin Nông Sản Việt',
+          email: env.INITIAL_ADMIN_EMAIL,
+          phone: '0901234567',
+          passwordHash,
+          role: UserRole.ADMIN,
+          isB2BVerified: true,
+        });
+        logger.info(`Seeded initial Admin user: ${env.INITIAL_ADMIN_EMAIL}`);
+      }
     }
 
     // 4. Start BullMQ Queue Workers

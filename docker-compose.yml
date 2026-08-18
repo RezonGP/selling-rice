@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # Database - MySQL (Port 3306)
+  # Database - MySQL Only (Port 3306)
   mysql:
     image: mysql:8.0
     container_name: rice_mysql
@@ -19,27 +19,6 @@ services:
       - rice_network
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-RiceMySQLPass2026!}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  # Database - MongoDB
-  mongodb:
-    image: mongo:6.0
-    container_name: rice_mongodb
-    restart: always
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER:-admin}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-RicePass2026!}
-      MONGO_INITDB_DATABASE: rice_ecommerce
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
-    networks:
-      - rice_network
-    healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -73,7 +52,11 @@ services:
       NODE_ENV: production
       PORT: 5000
       INSTANCE_ID: backend-1
-      MONGO_URI: mongodb://${MONGO_ROOT_USER:-admin}:${MONGO_ROOT_PASSWORD:-RicePass2026!}@mongodb:27017/rice_ecommerce?authSource=admin
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_USER: root
+      MYSQL_PASSWORD: ${MYSQL_ROOT_PASSWORD:-RiceMySQLPass2026!}
+      MYSQL_DATABASE: rice_ecommerce
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD:-RedisRiceSecure2026!}
@@ -81,7 +64,7 @@ services:
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-SuperSecretRiceJWTRefreshKey2026!}
       CORS_ORIGIN: http://localhost:80,http://localhost:3000,http://localhost,http://gao.noryx.app
     depends_on:
-      mongodb:
+      mysql:
         condition: service_healthy
       redis:
         condition: service_healthy
@@ -99,7 +82,11 @@ services:
       NODE_ENV: production
       PORT: 5000
       INSTANCE_ID: backend-2
-      MONGO_URI: mongodb://${MONGO_ROOT_USER:-admin}:${MONGO_ROOT_PASSWORD:-RicePass2026!}@mongodb:27017/rice_ecommerce?authSource=admin
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_USER: root
+      MYSQL_PASSWORD: ${MYSQL_ROOT_PASSWORD:-RiceMySQLPass2026!}
+      MYSQL_DATABASE: rice_ecommerce
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD:-RedisRiceSecure2026!}
@@ -107,7 +94,7 @@ services:
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-SuperSecretRiceJWTRefreshKey2026!}
       CORS_ORIGIN: http://localhost:80,http://localhost:3000,http://localhost,http://gao.noryx.app
     depends_on:
-      mongodb:
+      mysql:
         condition: service_healthy
       redis:
         condition: service_healthy
@@ -143,7 +130,6 @@ services:
 
 volumes:
   mysql_data:
-  mongo_data:
   redis_data:
 
 networks:
