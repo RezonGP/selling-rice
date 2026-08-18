@@ -41,9 +41,9 @@ export const CartCheckout: React.FC = () => {
         })),
         shippingAddress: {
           fullName: formData.fullName.trim() || 'Khách Hàng Nông Sản Việt',
-          phone: formData.phone.trim() || '0901234567',
+          phone: formData.phone.trim() || '0977610432',
           province: province || 'Hồ Chí Minh',
-          district: formData.district.trim() || 'Chưa nhập quận',
+          district: formData.district.trim() || 'Quận Tân Phú',
           ward: formData.ward.trim() || 'Chưa nhập phường',
           streetAddress: formData.streetAddress.trim() || 'Địa chỉ giao hàng',
           isCorporateAddress: formData.isCorporateAddress,

@@ -1,0 +1,36 @@
+name: CI/CD Pipeline - Rice E-Commerce
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Backend Security & Type Check
+        run: |
+          cd backend
+          npm ci
+          npx tsc --noEmit
+
+      - name: Frontend Security & Type Check
+        run: |
+          cd frontend
+          npm ci
+          npx tsc --noEmit
+
+      - name: Build Docker Images (CI Check)
+        run: |
+          docker-compose build

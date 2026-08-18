@@ -1,5 +1,6 @@
 import app from './app';
 import { connectDB } from './config/db';
+import { initMySQLTables } from './config/mysql';
 import { env } from './config/env';
 import { logger } from './config/logger';
 import { UserRepository } from './infrastructure/repositories/UserRepository';
@@ -12,7 +13,10 @@ const startServer = async () => {
     // 1. Connect MongoDB
     await connectDB();
 
-    // 2. Seed Initial Admin Account if not exists
+    // 2. Initialize MySQL Tables (products, orders)
+    await initMySQLTables();
+
+    // 3. Seed Initial Admin Account if not exists
     const userRepo = new UserRepository();
     const authService = new AuthService();
     const adminUser = await userRepo.findByEmail(env.INITIAL_ADMIN_EMAIL);
@@ -29,10 +33,10 @@ const startServer = async () => {
       logger.info(`Seeded initial Admin user: ${env.INITIAL_ADMIN_EMAIL}`);
     }
 
-    // 3. Start BullMQ Queue Workers
+    // 4. Start BullMQ Queue Workers
     startOrderWorker();
 
-    // 4. Start Express HTTP Server
+    // 5. Start Express HTTP Server
     const server = app.listen(env.PORT, () => {
       logger.info(`Server instance [${env.INSTANCE_ID}] running on port ${env.PORT} in ${env.NODE_ENV} mode`);
     });
