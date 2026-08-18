@@ -20,20 +20,12 @@ const app = express();
 // Disable X-Powered-By Header
 app.disable('x-powered-by');
 
-// CORS Setup
-const allowedOrigins = env.CORS_ORIGIN.split(',').map((o) => o.trim());
+// Flexible CORS Setup (Allows VPS IP & Domain)
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow server-to-server requests (no origin) and whitelisted origins
-      if (!origin || allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
-        callback(null, true);
-      } else if (env.NODE_ENV !== 'production') {
-        // In development, allow all origins with a warning
-        callback(null, true);
-      } else {
-        callback(new Error(`CORS: Origin ${origin} not allowed`));
-      }
+      // Allow all origins in production/staging to ensure VPS IP & domains work seamlessly
+      callback(null, true);
     },
     credentials: true,
   })
